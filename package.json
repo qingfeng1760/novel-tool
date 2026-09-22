@@ -1,0 +1,35 @@
+{
+  "name": "novel-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "小说工具 v1 —— 只在本机运行的小说收集与阅读工具",
+  "type": "commonjs",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "make-bat": "node tools/make-bat.js",
+    "test": "node tools/run-tests.js",
+    "test:s0": "node --test tests/s0-skeleton.test.js",
+    "test:s1": "node --test tests/s1-models.test.js",
+    "test:s2": "node --test tests/s2-import.test.js",
+    "test:s3": "node --test tests/s3-shelf.test.js",
+    "test:s4": "node --test tests/s4-reader.test.js",
+    "test:s5": "node --test tests/s5-chapters.test.js",
+    "test:s6": "node --test tests/s6-search.test.js",
+    "test:s7": "node --test tests/s7-fetch.test.js",
+    "test:s8": "node --test tests/s8-userscript.test.js",
+    "test:s9": "node --test tests/s9-scheduler.test.js",
+    "test:s10": "node --test tests/s10-settings.test.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "archiver": "^7.0.1",
+    "cheerio": "^1.2.0",
+    "iconv-lite": "^0.7.3",
+    "jschardet": "^3.1.4",
+    "robots-parser": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

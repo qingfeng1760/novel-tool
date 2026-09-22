@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      阅读器独立成页（PRD §2.1）：少干扰，只有正文和必要的手边工具。
+      硬约束 3：不引入任何在线资源，字体也用系统自带的。
+    -->
+    <title>阅读 · 小说工具</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="stylesheet" href="/assets/reader.css" />
+  </head>
+  <body class="reader-body-root" data-theme="day" data-mode="scroll">
+    <!-- 顶栏：平时只有书名和几个按钮；沉浸模式下整条收起 -->
+    <header class="reader-topbar" id="readerTopbar">
+      <div class="reader-top-left">
+        <a class="btn btn-sm btn-ghost" href="#/shelf" id="btnBackShelf" title="回到书架">← 书架</a>
+        <span class="reader-book-title" id="readerBookTitle"></span>
+      </div>
+      <div class="reader-progress-mini" id="readerProgressMini"></div>
+      <div class="reader-top-right">
+        <button class="btn btn-sm" id="btnToc" type="button" title="目录（C）">目录</button>
+        <button class="btn btn-sm" id="btnBookmark" type="button" title="加书签（B）">加书签</button>
+        <button class="btn btn-sm" id="btnPanel" type="button" title="书签 / 笔记 / 历史">标记</button>
+        <button class="btn btn-sm" id="btnTypo" type="button" title="排版">排版</button>
+        <button class="btn btn-sm btn-ghost" id="btnFocus" type="button" title="沉浸阅读（F）">沉浸</button>
+      </div>
+    </header>
+
+    <!-- 排版控制条：点「排版」展开 -->
+    <section class="typo-bar" id="typoBar" hidden>
+      <label class="typo-item">
+        <span>字号</span>
+        <input type="range" id="setFontSize" min="12" max="40" step="1" />
+        <output id="outFontSize"></output>
+      </label>
+      <label class="typo-item">
+        <span>行距</span>
+        <input type="range" id="setLineHeight" min="1.2" max="3" step="0.05" />
+        <output id="outLineHeight"></output>
+      </label>
+      <label class="typo-item">
+        <span>版心</span>
+        <input type="range" id="setWidth" min="420" max="1400" step="20" />
+        <output id="outWidth"></output>
+      </label>
+      <label class="typo-item">
+        <span>缩进</span>
+        <input type="range" id="setIndent" min="0" max="4" step="0.5" />
+        <output id="outIndent"></output>
+      </label>
+      <label class="typo-item">
+        <span>字体</span>
+        <select id="setFontFamily">
+          <option value="serif">衬线（宋体/仿宋，像纸书）</option>
+          <option value="sans">无衬线（黑体，字更清楚）</option>
+          <option value="mono">等宽</option>
+          <option value="system">系统默认</option>
+        </select>
+      </label>
+      <div class="typo-item typo-group">
+        <span>主题</span>
+        <div class="seg" id="themeSeg">
+          <button type="button" data-theme="day">日间</button>
+          <button type="button" data-theme="night">夜间</button>
+          <button type="button" data-theme="eye">护眼</button>
+        </div>
+      </div>
+      <div class="typo-item typo-group">
+        <span>模式</span>
+        <div class="seg" id="modeSeg">
+          <button type="button" data-mode="scroll">竖向滚动</button>
+          <button type="button" data-mode="page">左右翻页</button>
+        </div>
+      </div>
+      <p class="typo-note">这里的设置是全局的，换书不用重设。快捷键：T 换主题、+ / - 调字号、F 沉浸、Esc 退出沉浸、B 加书签。</p>
+    </section>
+
+    <!-- 正文区 -->
+    <main class="reader-stage">
+      <div class="reader-scroller" id="readerScroller">
+        <article class="reader-content" id="readerContent">
+          <div class="loading">正在打开…</div>
+        </article>
+      </div>
+
+      <!-- 整屏翻页 / 章节切换用的左右热区（只在翻页模式下显示） -->
+      <button class="page-hot page-hot-prev" id="pagePrev" type="button" aria-label="上一页">‹</button>
+      <button class="page-hot page-hot-next" id="pageNext" type="button" aria-label="下一页">›</button>
+    </main>
+
+    <!-- 底部章内/章间导航；底部状态栏显示本章进度 -->
+    <footer class="reader-bottombar" id="readerBottombar">
+      <button class="btn btn-sm btn-ghost" id="btnPrevChapter" type="button">上一章</button>
+      <button class="btn btn-sm btn-ghost" id="btnTop" type="button">回顶部</button>
+      <div class="reader-bottom-status" id="readerStatus"></div>
+      <button class="btn btn-sm btn-ghost" id="btnBottom" type="button">到底部</button>
+      <button class="btn btn-sm btn-ghost" id="btnNextChapter" type="button">下一章</button>
+    </footer>
+
+    <!-- 目录抽屉 -->
+    <aside class="drawer" id="tocDrawer" hidden>
+      <div class="drawer-head">
+        <strong>目录</strong>
+        <button class="btn btn-sm btn-ghost" id="btnTocClose" type="button">关闭</button>
+      </div>
+      <div class="drawer-search">
+        <input type="search" id="tocSearch" placeholder="搜章节标题，或输入章节号后回车" />
+      </div>
+      <div class="drawer-body" id="tocList"></div>
+    </aside>
+
+    <!-- 标记侧栏：书签 / 笔记 / 历史 -->
+    <aside class="drawer drawer-right" id="markDrawer" hidden>
+      <div class="drawer-head">
+        <div class="seg" id="markSeg">
+          <button type="button" data-tab="bookmarks">书签</button>
+          <button type="button" data-tab="notes">笔记</button>
+          <button type="button" data-tab="history">历史</button>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="btnMarkClose" type="button">关闭</button>
+      </div>
+      <div class="drawer-body" id="markBody"></div>
+    </aside>
+
+    <!-- 选中正文后浮出来的小按钮 -->
+    <div class="selection-tools" id="selectionTools" hidden>
+      <button class="btn btn-sm btn-primary" id="btnMakeNote" type="button">划线写备注</button>
+      <button class="btn btn-sm" id="btnCopySelection" type="button">复制</button>
+    </div>
+
+    <div id="overlay" class="overlay" hidden></div>
+    <div id="toasts" class="toasts" aria-live="assertive"></div>
+
+    <script type="module" src="/assets/reader.js"></script>
+  </body>
+</html>

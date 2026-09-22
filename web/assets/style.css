@@ -1,0 +1,407 @@
+/* style.css —— 主应用（书架 / 详情 / 抓取 / 导入 / 检索 / 设置）的样式。
+ *
+ * 约定：
+ *   1. 不使用任何在线字体或图标库（硬约束 3），图标一律用文字或内联 SVG；
+ *   2. 颜色全部走 CSS 变量，阅读器的三套主题（日间/夜间/护眼）只需换一组变量；
+ *   3. 尊重系统的深色偏好 —— 用户的电脑是深色模式时，书架也跟着深色。
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #f0efec;
+  --border: #e2e0da;
+  --text: #22201d;
+  --text-dim: #6b6862;
+  --text-faint: #9a968e;
+  --brand: #b4552d;
+  --brand-text: #ffffff;
+  --brand-soft: #f6e7e0;
+  --ok: #2f7d4f;
+  --warn: #b07a12;
+  --danger: #b3372c;
+  --shadow: 0 1px 2px rgba(34, 32, 29, 0.06), 0 8px 24px rgba(34, 32, 29, 0.06);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171614;
+    --surface: #201e1c;
+    --surface-2: #2a2724;
+    --border: #383430;
+    --text: #ece9e4;
+    --text-dim: #b0aaa2;
+    --text-faint: #807a72;
+    --brand: #d0714a;
+    --brand-text: #1a1310;
+    --brand-soft: #35251d;
+    --ok: #6dc08c;
+    --warn: #e0b45c;
+    --danger: #e0796c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC',
+    'Hiragino Sans GB', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: ui-monospace, Consolas, 'Cascadia Mono', 'Courier New', monospace;
+  font-size: 0.92em;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------------------ 顶栏 */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.topbar-search {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.topbar-search input {
+  width: 100%;
+  max-width: 420px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------ 表单零件 */
+
+input[type='text'],
+input[type='search'],
+input[type='number'],
+select,
+textarea,
+.input {
+  padding: 7px 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.input:focus-visible,
+.btn:focus-visible {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--brand) 86%, black);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------ 布局 */
+
+.view {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 20px 64px;
+}
+
+.loading {
+  padding: 56px 0;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.empty-state {
+  max-width: 620px;
+  margin: 48px auto;
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.empty-state p {
+  margin: 6px 0;
+  color: var(--text-dim);
+}
+
+.empty-state .hint {
+  color: var(--text-faint);
+  font-size: 13.5px;
+}
+
+.about-list {
+  margin: 22px auto 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  max-width: 520px;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.about-list dt {
+  color: var(--text-faint);
+}
+
+.about-list dd {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+/* ------------------------------------------------------------ 提示条 */
+
+.banner {
+  margin: 14px 20px 0;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 14px;
+}
+
+.banner-warn {
+  border-color: color-mix(in srgb, var(--warn) 45%, var(--border));
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+}
+
+.banner ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+/* ------------------------------------------------------------ 弹层 */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.overlay-panel {
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.dialog {
+  width: min(460px, 100%);
+  padding: 22px;
+}
+
+.dialog-title {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.dialog-message {
+  margin: 0 0 8px;
+  color: var(--text-dim);
+}
+
+.dialog-detail {
+  margin: 0 0 14px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.dialog-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.dialog-input {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ------------------------------------------------------------ 轻提示 */
+
+.toasts {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 36px));
+}
+
+.toast {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  animation: toast-in 0.18s ease-out;
+}
+
+.toast-hint {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.toast-ok {
+  border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
+}
+.toast-warn {
+  border-color: color-mix(in srgb, var(--warn) 50%, var(--border));
+}
+.toast-error {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+}
+
+.toast-out {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.24s, transform 0.24s;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 无障碍：尊重"减少动态效果"的系统设置 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

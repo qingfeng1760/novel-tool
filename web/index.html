@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- 本地工具：一切都来自本机服务，不允许任何外链资源（硬约束 3） -->
+    <title>小说工具</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="stylesheet" href="/assets/pages.css" />
+  </head>
+  <body>
+    <!-- 单页应用外壳：第一层永远只有「书架 / 阅读器 / 加书」（PRD §2.2 界面分层纪律） -->
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="#/shelf" title="回到书架">小说工具</a>
+        <div class="topbar-search">
+          <input
+            id="quickSearch"
+            type="search"
+            placeholder="搜索书名…"
+            autocomplete="off"
+            aria-label="搜索书名"
+          />
+        </div>
+        <div class="topbar-actions">
+          <button id="btnAddBook" class="btn btn-primary" type="button">加书</button>
+        </div>
+      </header>
+
+      <!-- 数据体检提示：哪个文件坏了必须让用户看见 -->
+      <div id="healthBanner" class="banner banner-warn" hidden></div>
+
+      <main id="view" class="view" aria-live="polite">
+        <div class="loading">正在打开书架…</div>
+      </main>
+    </div>
+
+    <!-- 通用抽屉 / 弹层容器（加书、目录、笔记等复用） -->
+    <div id="overlay" class="overlay" hidden></div>
+    <div id="toasts" class="toasts" aria-live="assertive"></div>
+
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>
